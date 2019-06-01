@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">CaesarApp</string>
+    <string name="input">Input:</string>
+    <string name="output">Output:</string>
+    <string name="encrypt_decrypt_button">Encrypt/Decrypt</string>
+    <string name="shift">Shift Value:</string>
+
+</resources>
