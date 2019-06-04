@@ -1,14 +1,20 @@
 package com.example.diceroller;
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.Random;
 
-public class dice_roller extends AppCompatActivity {
+public class dice_roller extends AppCompatActivity implements SensorEventListener {
 
     public static final Random RANDOM=new Random();
     private Button button;
@@ -18,8 +24,14 @@ public class dice_roller extends AppCompatActivity {
     private ImageView imageView4;
     private ImageView imageView5;
     private ImageView imageView6;
+    private TextView textView3;
     private int num;
 
+    private static final float GRAVITY_THRESHOLD = 1.5F;
+    private SensorManager sensorM;
+    private Sensor sensor;
+
+    private MediaPlayer media;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,26 +39,37 @@ public class dice_roller extends AppCompatActivity {
         setContentView(R.layout.activity_dice_roller);
         button=(Button)  findViewById(R.id.button);
         num=getIntent().getIntExtra("count",0);
+
         imageView1=(ImageView) findViewById(R.id.imageView1);
         imageView2=(ImageView) findViewById(R.id.imageView2);
         imageView3=(ImageView) findViewById(R.id.imageView3);
         imageView4=(ImageView) findViewById(R.id.imageView4);
         imageView5=(ImageView) findViewById(R.id.imageView5);
         imageView6=(ImageView) findViewById(R.id.imageView6);
+        textView3=(TextView) findViewById(R.id.textView3);
+
+        sensorM = (SensorManager)getSystemService(SENSOR_SERVICE);
+        sensor = sensorM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        media=MediaPlayer.create(this,R.raw.audio);
+        media.start();
 
         if (num==1) {
             imageView2.setVisibility(View.VISIBLE);
+            textView3.setText("Total: 2");
         }
         else if(num==2)
         {
             imageView2.setVisibility(View.VISIBLE);
             imageView5.setVisibility(View.VISIBLE);
+            textView3.setText("Total: 7");
         }
         else if(num==3)
         {
             imageView1.setVisibility(View.VISIBLE);
             imageView2.setVisibility(View.VISIBLE);
             imageView3.setVisibility(View.VISIBLE);
+            textView3.setText("Total: 6");
 
         }
         else if(num==4)
@@ -55,6 +78,7 @@ public class dice_roller extends AppCompatActivity {
             imageView2.setVisibility(View.VISIBLE);
             imageView3.setVisibility(View.VISIBLE);
             imageView5.setVisibility(View.VISIBLE);
+            textView3.setText("Total: 11");
         }
         else if(num==5)
         {
@@ -63,7 +87,7 @@ public class dice_roller extends AppCompatActivity {
             imageView3.setVisibility(View.VISIBLE);
             imageView4.setVisibility(View.VISIBLE);
             imageView5.setVisibility(View.VISIBLE);
-
+            textView3.setText("Total: 15");
         }
         else if(num==6)
         {
@@ -73,65 +97,124 @@ public class dice_roller extends AppCompatActivity {
             imageView4.setVisibility(View.VISIBLE);
             imageView5.setVisibility(View.VISIBLE);
             imageView6.setVisibility(View.VISIBLE);
+            textView3.setText("Total: 21");
         }
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int result1=getRandomValue();
-                int result2=getRandomValue();
-                int result3=getRandomValue();
-                int result4=getRandomValue();
-                int result5=getRandomValue();
-                int result6=getRandomValue();
-
-
-                if (num==1)
-                {
-                    imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
-                }
-                else if (num==2){
-
-                    imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
-                    imageView5.setImageResource(getResources().getIdentifier("dice"+result5,"drawable","com.example.diceroller"));
-                }
-                else if (num==3){
-                    imageView1.setImageResource(getResources().getIdentifier("dice"+result1,"drawable","com.example.diceroller"));
-                    imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
-                    imageView3.setImageResource(getResources().getIdentifier("dice"+result3,"drawable","com.example.diceroller"));
-
-                }
-                else if (num==4){
-                    imageView1.setImageResource(getResources().getIdentifier("dice"+result1,"drawable","com.example.diceroller"));
-                    imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
-                    imageView3.setImageResource(getResources().getIdentifier("dice"+result3,"drawable","com.example.diceroller"));
-                    imageView5.setImageResource(getResources().getIdentifier("dice"+result5,"drawable","com.example.diceroller"));
-                }
-                else if (num==5){
-                    imageView1.setImageResource(getResources().getIdentifier("dice"+result1,"drawable","com.example.diceroller"));
-                    imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
-                    imageView3.setImageResource(getResources().getIdentifier("dice"+result3,"drawable","com.example.diceroller"));
-                    imageView4.setImageResource(getResources().getIdentifier("dice"+result4,"drawable","com.example.diceroller"));
-                    imageView5.setImageResource(getResources().getIdentifier("dice"+result5,"drawable","com.example.diceroller"));
-
-                }
-                else if (num==6){
-                    imageView1.setImageResource(getResources().getIdentifier("dice"+result1,"drawable","com.example.diceroller"));
-                    imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
-                    imageView3.setImageResource(getResources().getIdentifier("dice"+result3,"drawable","com.example.diceroller"));
-                    imageView4.setImageResource(getResources().getIdentifier("dice"+result4,"drawable","com.example.diceroller"));
-                    imageView5.setImageResource(getResources().getIdentifier("dice"+result5,"drawable","com.example.diceroller"));
-                    imageView6.setImageResource(getResources().getIdentifier("dice"+result6,"drawable","com.example.diceroller"));
-
-                }
-
-
+                rollDice();
             }
         });
 
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent Sevent) {
+        double dim1, dim2, dim3;
+
+        if (Sevent.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+
+            dim1 = Sevent.values[0];
+            dim2 = Sevent.values[1];
+            dim3 = Sevent.values[2];
+
+            double new_dim1 = dim1 / SensorManager.GRAVITY_EARTH;
+            double new_dim2 = dim2 / SensorManager.GRAVITY_EARTH;
+            double new_dim3 = dim3 / SensorManager.GRAVITY_EARTH;
+
+            // gForce will be close to 1 when there is no movement.
+            float speed = (float)Math.sqrt(new_dim1 * new_dim1 + new_dim2 * new_dim2 + new_dim3 * new_dim3);
+            System.out.println(speed);
+
+            if (speed > GRAVITY_THRESHOLD) {
+                // onUserAction();
+                rollDice();
+            }
+        }
+    }
+
+
+    private void rollDice(){
+        int result1=getRandomValue();
+        int result2=getRandomValue();
+        int result3=getRandomValue();
+        int result4=getRandomValue();
+        int result5=getRandomValue();
+        int result6=getRandomValue();
+
+        media.start();
+        if (num==1)
+        {
+            imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
+            textView3.setText("Total: "+result2);
+        }
+        else if (num==2){
+
+            imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
+            imageView5.setImageResource(getResources().getIdentifier("dice"+result5,"drawable","com.example.diceroller"));
+            int sum=result2+result5;
+            textView3.setText("Total: "+sum);
+        }
+        else if (num==3){
+            imageView1.setImageResource(getResources().getIdentifier("dice"+result1,"drawable","com.example.diceroller"));
+            imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
+            imageView3.setImageResource(getResources().getIdentifier("dice"+result3,"drawable","com.example.diceroller"));
+
+            int sum=result1+result2+result3;
+            textView3.setText("Total: "+sum);
+        }
+        else if (num==4){
+            imageView1.setImageResource(getResources().getIdentifier("dice"+result1,"drawable","com.example.diceroller"));
+            imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
+            imageView3.setImageResource(getResources().getIdentifier("dice"+result3,"drawable","com.example.diceroller"));
+            imageView5.setImageResource(getResources().getIdentifier("dice"+result5,"drawable","com.example.diceroller"));
+            int sum=result1+result2+result3+result5;
+            textView3.setText("Total: "+sum);
+        }
+        else if (num==5){
+            imageView1.setImageResource(getResources().getIdentifier("dice"+result1,"drawable","com.example.diceroller"));
+            imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
+            imageView3.setImageResource(getResources().getIdentifier("dice"+result3,"drawable","com.example.diceroller"));
+            imageView4.setImageResource(getResources().getIdentifier("dice"+result4,"drawable","com.example.diceroller"));
+            imageView5.setImageResource(getResources().getIdentifier("dice"+result5,"drawable","com.example.diceroller"));
+            int sum=result1+result2+result3+result5+result4;
+            textView3.setText("Total: "+sum);
+        }
+        else if (num==6){
+            imageView1.setImageResource(getResources().getIdentifier("dice"+result1,"drawable","com.example.diceroller"));
+            imageView2.setImageResource(getResources().getIdentifier("dice"+result2,"drawable","com.example.diceroller"));
+            imageView3.setImageResource(getResources().getIdentifier("dice"+result3,"drawable","com.example.diceroller"));
+            imageView4.setImageResource(getResources().getIdentifier("dice"+result4,"drawable","com.example.diceroller"));
+            imageView5.setImageResource(getResources().getIdentifier("dice"+result5,"drawable","com.example.diceroller"));
+            imageView6.setImageResource(getResources().getIdentifier("dice"+result6,"drawable","com.example.diceroller"));
+            int sum=result1+result2+result3+result5+result4+result6;
+            textView3.setText("Total: "+sum);
+        }
+    }
+
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (sensor != null) {
+            sensorM.registerListener(this, sensor, SensorManager.SENSOR_DELAY_GAME);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        sensorM.unregisterListener(this);
     }
 
     public int getRandomValue(){
 
         return RANDOM.nextInt(6)+1;
     }
+
 }
