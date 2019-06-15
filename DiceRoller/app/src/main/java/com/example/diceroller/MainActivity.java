@@ -1,5 +1,6 @@
 package com.example.diceroller;
 
+//importing all the required libraries
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -9,15 +10,23 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+//MainActivity class starts here. Implementing the SensorEventListener interface.
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private Button button;
-    private EditText input;
-    private TextView Emessage;
+    // initialize the variables
+    private int NumOfDice=0;
 
+    //declare UI controls
+    private Button button;
+    private ImageView plus;
+    private ImageView minus;
+    private TextView Emessage;
+    private TextView inputdice;
+
+    //declare Sensor variables
     private static final float GRAVITY_THRESHOLD = 1.5F;
     private SensorManager sensorM;
     private Sensor sensor;
@@ -27,44 +36,77 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //initialize Sensor variables
         sensorM = (SensorManager)getSystemService(SENSOR_SERVICE);
         sensor = sensorM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
+        //initialize UI controls
         button=(Button)  findViewById(R.id.button);
-        input=(EditText) findViewById(R.id.editText);
+        plus=(ImageView) findViewById(R.id.imageView);
+        minus=(ImageView) findViewById(R.id.imageView2);
         Emessage=(TextView) findViewById(R.id.textView2);
+        inputdice=(TextView) findViewById(R.id.textView3);
+
+        // This event is triggered when "Click/Shake to Roll" is clicked
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openDiceRoller();
             }
         });
+
+        // This event is triggered when "+" is clicked. This method increments the number of dice count by 1 on each click
+        plus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumOfDice++;
+                inputdice.setText(NumOfDice+"");
+
+            }
+        });
+
+        //This event is triggered when "-" is clicked. This method decrements the number of dice count by 1 on each click
+        minus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                NumOfDice--;
+                inputdice.setText(NumOfDice+"");
+
+            }
+        });
     }
 
 
+    //To check the number of dice and send the information to next screen via Intent
     public void openDiceRoller(){
+
         Intent intent=new Intent(this,dice_roller.class);
         try {
-            int num = Integer.parseInt(input.getText().toString());
+            int num = NumOfDice;
+
+            // if the number of dice is not between 1 and 6, error message is thrown to the user
             if(num<1 || num>6)
             {
-                System.out.println("please enter number between 1 and 6");
                 Emessage.setVisibility(View.VISIBLE);
                 return;
             }
             Emessage.setVisibility(View.INVISIBLE);
+
+            // to send the number of dice count to next screen
             intent.putExtra("count",num);
             startActivity(intent);
+
         }catch (Exception e)
         {
+            //to display error message if any exception is thrown
             Emessage.setVisibility(View.VISIBLE);
             return;
         }
 
-
     }
 
 
+    // This method is triggered whenever the device is shaken
     @Override
     public void onSensorChanged(SensorEvent Sevent) {
         double dim1, dim2, dim3;
@@ -96,6 +138,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     }
 
+    // This method is to unregister the SensorEventListener
     @Override
     protected void onResume() {
         super.onResume();
@@ -104,6 +147,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    // This method is to register the SensorEventListener
     @Override
     protected void onPause() {
         super.onPause();
