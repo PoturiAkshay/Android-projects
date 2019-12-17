@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Halifax Transit</string>
+    <string name="title_activity_maps">Halifax Transit</string>
+    <string name="google_maps_key">AIzaSyAOCnt44pjeQxgi8PlSunqYccB9WDS3Umo</string>
+</resources>
